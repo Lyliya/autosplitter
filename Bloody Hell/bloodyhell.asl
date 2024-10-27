@@ -40,6 +40,11 @@ init {
     vars.porkchopSkip = false;
     vars.laserSkip = false;
 
+    vars.dash = false;
+    vars.chargingShot = false;
+    vars.doubleDash = false;
+    vars.grappling = false;
+
     current.abilities = new List<string>();
 }
 
@@ -50,31 +55,39 @@ onStart
     vars.satanKilled = false;
     vars.porkchopSkip = false;
     vars.laserSkip = false;
+    vars.dash = false;
+    vars.doubleDash = false;
+    vars.chargingShot = false;
+    vars.grappling = false;
 }
 
 split
 {
     // Split on dash pickup
-    if (!old.abilities.Contains("Player_State_Dashing") && current.abilities.Contains("Player_State_Dashing"))
+    if (!vars.dash && !old.abilities.Contains("Player_State_Dashing") && current.abilities.Contains("Player_State_Dashing"))
     {
+        vars.dash = true;
         return settings["abilities_dash"];
     }
 
     // Split on charging shot pickup
-    if (!old.abilities.Contains("Player_State_ChargingShot") && current.abilities.Contains("Player_State_ChargingShot"))
+    if (!vars.chargingShot && !old.abilities.Contains("Player_State_ChargingShot") && current.abilities.Contains("Player_State_ChargingShot"))
     {
+        vars.chargingShot = true;
         return settings["abilities_charging_shot"];
     }
 
     // Split on double dash pickup
-    if (!old.abilities.Contains("Player_State_DoubleDashing") && current.abilities.Contains("Player_State_DoubleDashing"))
+    if (!vars.doubleDash && !old.abilities.Contains("Player_State_DoubleDashing") && current.abilities.Contains("Player_State_DoubleDashing"))
     {
+        vars.doubleDash = true;
         return settings["abilities_double_dash"];
     }
 
     // Split on grappling pickup
-    if (!old.abilities.Contains("Player_State_Grappling") && current.abilities.Contains("Player_State_Grappling"))
+    if (!vars.grappling && !old.abilities.Contains("Player_State_Grappling") && current.abilities.Contains("Player_State_Grappling"))
     {
+        vars.grappling = true;
         return settings["abilities_grappling"];
     }
 
@@ -92,7 +105,7 @@ split
     }
 
     // Pick Up God Halo
-    if (current.inGodHaloRange == true && current.pressedInteract == true && current.currentRoom == "Room_Bossfight_God.unity") {
+    if ((old.inGodHaloRange == true || current.inGodHaloRange == true) && current.pressedInteract == true && current.currentRoom == "Room_Bossfight_God.unity") {
         return true;
     }
 
