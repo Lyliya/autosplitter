@@ -28,6 +28,7 @@ init {
         mono.Images.Clear();
         
         vars.Helper["abilitiesMemory"] = mono.MakeList<IntPtr>("Systems", 1, "Instance", "CurrentSaveFileData", "UnlockedAbilities");
+        vars.Helper["lastSavePointID"] = mono.MakeString("Systems", 1, "Instance", "CurrentSaveFileData", "LastSavePointID");
         vars.Helper["pressedInteract"] = mono.Make<bool>("InputHandler", 1, "Instance", "CurrentFrame", "PressedInteract");
         vars.Helper["currentRoom"] = mono.MakeString("Systems", 1, "Instance", "CurrentRoomManager", "RoomData", "SceneName");
         vars.Helper["isStarting"] = mono.Make<bool>("UIManager", 1, "Instance", "_starting");
@@ -92,31 +93,36 @@ split
     }
 
     // Kill Porkchop
-    if (!vars.porkchopKilled && old.porkchopHealth > 0 && old.porkchopHealth < 130 && current.porkchopHealth <= 0 && current.currentRoom == "Z1_R1_Bossfight_Porkchop") {
+    if (!vars.porkchopKilled && old.porkchopHealth > 0 && old.porkchopHealth < 130 && current.porkchopHealth <= 0 && current.currentRoom == "Z1_R1_Bossfight_Porkchop")
+    {
         vars.porkchopKilled = true;
         return settings["boss_porkchop"];
     }
 
 
     // Transition from Satan Room to End of game Heaven
-    if (!vars.satanKilled && old.currentRoom == "Room_SatanTest.unity" && current.currentRoom == "Heaven_EndOfGame.unity") {
+    if (!vars.satanKilled && current.currentRoom == "Room_SatanTest.unity" && old.lastSavePointID != "Heaven_EndOfGame.unity_SpawnPoint" && current.lastSavePointID == "Heaven_EndOfGame.unity_SpawnPoint")
+    {
         vars.satanKilled = true;
         return settings["boss_satan"];
     }
 
-    // Pick Up God Halo
-    if ((old.inGodHaloRange == true || current.inGodHaloRange == true) && current.pressedInteract == true && current.currentRoom == "Room_Bossfight_God.unity") {
+    // Pick Up God Halo -> The game set the last save point to "Z3_R3_BeforeSatan.unity_SavePoint" when pickup up the crown
+    if (current.currentRoom == "Room_Bossfight_God.unity" && old.lastSavePointID != "Z3_R3_BeforeSatan.unity_SavePoint" && current.lastSavePointID == "Z3_R3_BeforeSatan.unity_SavePoint")
+    {
         return true;
     }
 
     // Porkchop skip
-    if (!vars.porkchopSkip && old.currentRoom == "Z1_R1_Bossfight_Porkchop" && current.currentRoom == "Z1_R2_Bot.unity") {
+    if (!vars.porkchopSkip && old.currentRoom == "Z1_R1_Bossfight_Porkchop" && current.currentRoom == "Z1_R2_Bot.unity")
+    {
         vars.porkchopSkip = true;
         return settings["skip_porkchop"];
     }
 
     // Laser skip skip
-    if (!vars.laserSkip && old.currentRoom == "Z1_R3_Bot.unity" && current.currentRoom == "Z2_R1_Bot_SP.unity") {
+    if (!vars.laserSkip && old.currentRoom == "Z1_R3_Bot.unity" && current.currentRoom == "Z2_R1_Bot_SP.unity")
+    {
         vars.laserSkip = true;
         return settings["skip_laser"];
     }
