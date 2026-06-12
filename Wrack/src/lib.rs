@@ -83,29 +83,17 @@ async fn main() {
                             }
 
                             if map_name != prev_map && !prev_map.is_empty() {
+                                
                                 if !has_accumulated_this_transition {
                                     accumulated_ticks += current_level_ticks as u64;
                                     has_accumulated_this_transition = true;
                                 }
-                            }
-
-                            if let Ok(level_done_val) = process.read::<u32>(base_address + pointers.is_level_done) {
-                                let is_level_done = level_done_val == 1;
-
-                                if is_level_done && !prev_is_level_done {
-                                    if let Ok(player_entity_pointer) = process.read::<u64>(base_address + pointers.player_health) {
-                                        let player_entity_address = Address::new(player_entity_pointer);
-                                        
-                                        if let Ok(health) = process.read::<i32>(player_entity_address + pointers.health_offset) {
-                                            if health > 0 && timer::state() == TimerState::Running {
-                                                timer::split();
-                                            }
-                                        }
-                                    }
+                                
+                                if timer::state() == TimerState::Running {
+                                    timer::split();
                                 }
-                                prev_is_level_done = is_level_done;
                             }
-                            
+
                             prev_map = map_name;
                         }
                     }
